@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 public class YandexDiskFileRetriever {
 
-  private static final Logger logger = LoggerFactory.getLogger("YDiskRetriever");
+  private static final Logger logger = LoggerFactory.getLogger("YaDiskRetriever");
 
   private HttpClient httpClient = HttpClients.createSystem();
   private CredentialsProvider credentialsProvider = new BasicCredentialsProvider();

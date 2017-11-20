@@ -31,7 +31,6 @@ public class SheetAdder<T> {
 
   private final Class<T> tableClass;
 
-
   public SheetAdder(Workbook workbook, EntityManager entityManager,
       CriteriaBuilder builder, Class<T> tableClass) {
     this.workbook = workbook;

@@ -49,3 +49,5 @@ fabric.properties
 
 .idea/
 *.iml
+
+yadisk-google.properties

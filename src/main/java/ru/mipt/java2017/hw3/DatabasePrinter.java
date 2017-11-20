@@ -13,6 +13,7 @@ import ru.mipt.java2017.hw3.models.Book;
 import ru.mipt.java2017.hw3.models.BookAuthorRelation;
 
 public class DatabasePrinter {
+
   private static final Logger logger = LoggerFactory.getLogger("DBPrinter");
 
   private final EntityManager entityManager;
@@ -60,7 +61,6 @@ public class DatabasePrinter {
     workbook.write(outputStream);
     logger.info("Done!");
   }
-
 
 
 }

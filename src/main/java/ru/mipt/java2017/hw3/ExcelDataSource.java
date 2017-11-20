@@ -1,8 +1,5 @@
 package ru.mipt.java2017.hw3;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -20,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import ru.mipt.java2017.hw3.models.Book;
 
 public class ExcelDataSource {
+
   private static final Logger logger = LoggerFactory.getLogger("excel");
   private final Workbook workbook;
 
@@ -37,12 +35,13 @@ public class ExcelDataSource {
     int isbnColumn = -1;
     for (int i = 0; i < 3; ++i) {
       String columnHead = row.getCell(i).getStringCellValue();
-      if (columnHead.equals("Title"))
+      if (columnHead.equals("Title")) {
         titleColumn = i;
-      else if (columnHead.equals("Authors"))
+      } else if (columnHead.equals("Authors")) {
         authorsColumn = i;
-      else
+      } else {
         isbnColumn = i;
+      }
     }
 
     this.titleColumn = titleColumn;
@@ -53,10 +52,11 @@ public class ExcelDataSource {
     int rowsCount = 0;
     for (int i = 0; i < maxRowCount; ++i) {
       String contents = sheet.getRow(i).getCell(titleColumn).getStringCellValue();
-      if (contents != null && contents.length() > 0)
+      if (contents != null && contents.length() > 0) {
         ++rowsCount;
-      else
+      } else {
         break;
+      }
     }
 
     this.rowsCount = rowsCount;
@@ -124,6 +124,7 @@ public class ExcelDataSource {
   }
 
   public class BookWithAuthors {
+
     private BigDecimal bookIsbn;
     private List<String> authorNames;
 

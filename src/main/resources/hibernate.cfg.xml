@@ -4,9 +4,9 @@
   "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
 
 <hibernate-configuration>
-    <session-factory>
+  <session-factory>
 
-        <property name="show_sql">true</property>
+    <property name="show_sql">true</property>
 
-    </session-factory>
+  </session-factory>
 </hibernate-configuration>

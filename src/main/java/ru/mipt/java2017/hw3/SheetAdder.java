@@ -24,6 +24,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
 public class SheetAdder<T> {
+
   private final Workbook workbook;
   private final EntityManager entityManager;
   private final CriteriaBuilder builder;
@@ -38,7 +39,6 @@ public class SheetAdder<T> {
     this.builder = builder;
     this.tableClass = tableClass;
   }
-
 
 
   Row addHeaderRow(Sheet sheet) {
@@ -63,7 +63,6 @@ public class SheetAdder<T> {
     List<T> entries = entityManager.createQuery(criteriaQuery).getResultList();
 
     Row headerRow = addHeaderRow(sheet);
-
 
     try {
       Map<Field, Method> getters = new HashMap<>();

@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class YandexDiskFileRetriever {
+
   private static final Logger logger = LoggerFactory.getLogger("YDiskRetriever");
 
   private HttpClient httpClient = HttpClients.createSystem();
@@ -33,7 +34,7 @@ public class YandexDiskFileRetriever {
   public InputStream getFile(String path) throws IOException {
     HttpGet request = null;
     try {
-      URIBuilder builder= new URIBuilder(DISK_URL);
+      URIBuilder builder = new URIBuilder(DISK_URL);
       builder.setPath("/" + path);
       request = new HttpGet(builder.build());
     } catch (URISyntaxException e) {

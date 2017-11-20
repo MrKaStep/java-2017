@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import ru.mipt.java2017.hw3.models.Book;
 
 public class AdvancedDatabaseUpdater {
+
   private static final Logger logger = LoggerFactory.getLogger("AdvDBUpdater");
 
   private final DatabaseUpdater databaseUpdater;

@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 public class GoogleImageSearcher {
 
-  private final static Logger logger = LoggerFactory.getLogger("GoogleSearcher");
+  private static final Logger logger = LoggerFactory.getLogger("GoogleSearcher");
 
   private HttpClient httpClient = HttpClients.createSystem();
 //  private final static int CONNECTION_TIMEOUT_MS = 2000;

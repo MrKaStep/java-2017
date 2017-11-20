@@ -31,42 +31,6 @@ public class Book {
   @Column(name = "Cover")
   private String coverLink;
 
-  static public String getIdColumnName() {
-    try {
-      return Book.class.getDeclaredField("id").getAnnotation(Column.class).name();
-    } catch (NoSuchFieldException e) {
-      e.printStackTrace();
-      return null;
-    }
-  }
-
-  static public String getIsbnColumnName() {
-    try {
-      return Book.class.getDeclaredField("isbn").getAnnotation(Column.class).name();
-    } catch (NoSuchFieldException e) {
-      e.printStackTrace();
-      return null;
-    }
-  }
-
-  static public String getTitleColumnName() {
-    try {
-      return Book.class.getDeclaredField("title").getAnnotation(Column.class).name();
-    } catch (NoSuchFieldException e) {
-      e.printStackTrace();
-      return null;
-    }
-  }
-
-  static public String getCoverLinkColumnName() {
-    try {
-      return Book.class.getDeclaredField("coverLink").getAnnotation(Column.class).name();
-    } catch (NoSuchFieldException e) {
-      e.printStackTrace();
-      return null;
-    }
-  }
-
   public Long getId() {
     return id;
   }

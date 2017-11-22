@@ -7,14 +7,17 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.xml.crypto.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.mipt.java2017.hw3.ExcelDataSource.BookWithAuthors;
@@ -26,27 +29,23 @@ public class DatabaseUpdater {
 
   private static final Logger logger = LoggerFactory.getLogger("DBUpdater");
 
-  private final EntityManager entityManager;
-  private final CriteriaBuilder criteriaBuilder;
+  protected final EntityManager entityManager;
+  protected final CriteriaBuilder criteriaBuilder;
 
   DatabaseUpdater(DatabaseAccess databaseAccess) {
     entityManager = databaseAccess.entityManager;
     criteriaBuilder = this.entityManager.getCriteriaBuilder();
   }
 
-  private void addAuthor(Author author) {
+  protected void addAuthor(Author author) {
     entityManager.persist(author);
   }
 
-  private void addBook(Book book) {
-    entityManager.persist(book);
-  }
-
-  private void addBookAuthorRelation(BookAuthorRelation relation) {
+  protected void addBookAuthorRelation(BookAuthorRelation relation) {
     entityManager.persist(relation);
   }
 
-  private Map<String, Long> addAuthorsAndGetIds(List<String> authorNames) {
+  protected Map<String, Long> addAuthorsAndGetIds(List<String> authorNames) {
     Map<String, Long> idByName = new HashMap<>();
     List<Author> authors = new ArrayList<>(authorNames.size());
     logger.info("Adding authors ...");
@@ -63,7 +62,7 @@ public class DatabaseUpdater {
     return idByName;
   }
 
-  private Map<BigDecimal, Long> addBooksAndGetIds(List<Book> books) {
+  protected Map<BigDecimal, Long> addBooksAndGetIds(List<Book> books) {
     Map<BigDecimal, Long> idByIsbn = new HashMap<>();
     logger.info("Adding books ...");
     entityManager.getTransaction().begin();
@@ -76,6 +75,7 @@ public class DatabaseUpdater {
       try {
         Book foundBook = entityManager.createQuery(query).getSingleResult();
         foundBook.setTitle(book.getTitle());
+        foundBook.setCoverLink(book.getCoverLink());
         entityManager.merge(foundBook);
         idByIsbn.put(foundBook.getIsbn(), foundBook.getId());
       } catch (NoResultException e) {
@@ -88,7 +88,7 @@ public class DatabaseUpdater {
     return idByIsbn;
   }
 
-  private void addBookAuthorRelations(
+  protected void addBookAuthorRelations(
       Map<String, Long> authorIdByName,
       Map<BigDecimal, Long> bookIdByIsbn,
       List<BookWithAuthors> booksWithAuthors) {
@@ -115,13 +115,32 @@ public class DatabaseUpdater {
     logger.info("Done!");
   }
 
-  void updateDatabase(ExcelDataSource excelDataSource) {
-    Map<String, Long> authorIdByName = addAuthorsAndGetIds(excelDataSource.getAuthorNames());
+  protected void updateDatabase(List<BookWithAuthors> booksWithAuthors) {
+    Set<String> authorNames = new HashSet<>();
+    List<Book> books = new ArrayList<>(booksWithAuthors.size());
 
-    Map<BigDecimal, Long> bookIdByIsbn = addBooksAndGetIds(excelDataSource.getBooks());
+    booksWithAuthors.forEach(bookWithAuthors -> {
+      authorNames.addAll(bookWithAuthors.getAuthorNames());
+      Book book = new Book();
+      book.setIsbn(bookWithAuthors.getBookIsbn());
+      book.setTitle(bookWithAuthors.getBookTitle());
+      books.add(book);
+    });
 
-    List<BookWithAuthors> booksWithAuthors = excelDataSource.getBooksWithAuthors();
+    Map<String, Long> authorIdByName = addAuthorsAndGetIds(new ArrayList<>(authorNames));
+    Map<BigDecimal, Long> bookIdByIsbn = addBooksAndGetIds(books);
     addBookAuthorRelations(authorIdByName, bookIdByIsbn, booksWithAuthors);
+  }
+
+  protected void printDatabase(String outputFile) {
+
+    DatabasePrinter printer = new DatabasePrinter(entityManager, outputFile);
+    try {
+      printer.printDatabaseContents();
+    } catch (IOException e) {
+      logger.error("Cannot print DB to excel file: {}", e.getMessage());
+      e.printStackTrace();
+    }
   }
 
   public static void main(String[] args) {
@@ -134,17 +153,8 @@ public class DatabaseUpdater {
     } catch (FileNotFoundException e) {
       e.printStackTrace();
     }
-
-    updater.updateDatabase(excelDataSource);
-
-    DatabasePrinter printer = new DatabasePrinter(databaseAccess, args[2]);
-    try {
-      printer.printDatabaseContents();
-    } catch (IOException e) {
-      logger.error("Cannot print DB to excel file: {}", e.getMessage());
-      e.printStackTrace();
-    } finally {
-      databaseAccess.close();
-    }
+    updater.updateDatabase(excelDataSource.getEntries());
+    updater.printDatabase(args[2]);
+    databaseAccess.close();
   }
 }

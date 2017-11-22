@@ -7,29 +7,19 @@ import java.util.Properties;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
 import org.hibernate.engine.jdbc.dialect.internal.StandardDialectResolver;
 import org.hibernate.engine.jdbc.dialect.spi.DatabaseMetaDataDialectResolutionInfoAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.mipt.java2017.hw3.models.Author;
-import ru.mipt.java2017.hw3.models.Book;
-import ru.mipt.java2017.hw3.models.BookAuthorRelation;
 
 public class DatabaseAccess {
 
   private static final Logger logger = LoggerFactory.getLogger("DBAccess");
 
-  private final SessionFactory sessionFactory;
-  final Session session;
-
   private final EntityManagerFactory entityManagerFactory;
   final EntityManager entityManager;
 
   void close() {
-    sessionFactory.close();
     entityManagerFactory.close();
   }
 
@@ -59,18 +49,8 @@ public class DatabaseAccess {
     properties.setProperty("hibernate.connection.dialect", dialectName);
     properties.setProperty("hibernate.connection.url", url);
 
-    Configuration configuration = new Configuration();
-
-    configuration.addProperties(properties);
-    configuration.addAnnotatedClass(Book.class);
-    configuration.addAnnotatedClass(Author.class);
-    configuration.addAnnotatedClass(BookAuthorRelation.class);
-    configuration.configure();
-
-    sessionFactory = configuration.buildSessionFactory();
     entityManagerFactory =
         Persistence.createEntityManagerFactory("mydb", properties);
-    session = sessionFactory.openSession();
     entityManager = entityManagerFactory.createEntityManager();
 
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {

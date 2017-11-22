@@ -40,7 +40,7 @@ public class SheetAdder<T> {
   }
 
 
-  Row addHeaderRow(Sheet sheet) {
+  private Row addHeaderRow(Sheet sheet) {
     Row headerRow = sheet.createRow(0);
 
     CellStyle cellStyle = workbook.createCellStyle();

@@ -4,35 +4,31 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.mipt.java2017.hw3.models.Book;
 
 public class ExcelDataSource {
 
   private static final Logger logger = LoggerFactory.getLogger("excel");
   private final Workbook workbook;
 
-  private int titleColumn;
-  private int authorsColumn;
-  private int isbnColumn;
-  private int rowsCount;
+  private final int titleColumn;
+  private final int authorsColumn;
+  private final int isbnColumn;
+  private final int rowsCount;
 
   private ExcelDataSource(InputStream inputStream) throws IOException {
     workbook = new XSSFWorkbook(inputStream);
     Sheet sheet = workbook.getSheetAt(0);
     Row row = sheet.getRow(0);
-    this.titleColumn = -1;
-    this.authorsColumn = -1;
-    this.isbnColumn = -1;
+    int titleColumn = -1;
+    int authorsColumn = -1;
+    int isbnColumn = -1;
     for (int i = 0; i < 3; ++i) {
       String columnHead = row.getCell(i).getStringCellValue();
       if (columnHead.equals("Title")) {
@@ -49,7 +45,7 @@ public class ExcelDataSource {
     this.isbnColumn = isbnColumn;
 
     int maxRowCount = sheet.getPhysicalNumberOfRows();
-    rowsCount = 0;
+    int rowsCount = 0;
     for (int i = 0; i < maxRowCount; ++i) {
       String contents = sheet.getRow(i).getCell(titleColumn).getStringCellValue();
       if (contents != null && contents.length() > 0) {
@@ -58,7 +54,6 @@ public class ExcelDataSource {
         break;
       }
     }
-
     this.rowsCount = rowsCount;
   }
 
@@ -71,61 +66,35 @@ public class ExcelDataSource {
     }
   }
 
-  public List<Book> getBooks() {
-    List<Book> books = new ArrayList<>(rowsCount - 1);
+  public List<BookWithAuthors> getEntries() {
     Sheet sheet = workbook.getSheetAt(0);
+
+    List<BookWithAuthors> entries = new ArrayList<>(rowsCount - 1);
     for (int i = 1; i < rowsCount; ++i) {
-      Book book = new Book();
       Row row = sheet.getRow(i);
-      book.setTitle(row.getCell(titleColumn).getStringCellValue());
-      book.setIsbn(new BigDecimal(
+      BookWithAuthors book = new BookWithAuthors();
+      book.setBookIsbn(new BigDecimal(
           row.getCell(isbnColumn).getStringCellValue().substring(8, 21)
       ));
-      books.add(book);
-    }
-    return books;
-  }
-
-  public List<String> getAuthorNames() {
-    Set<String> authorNames = new HashSet<>();
-
-    Sheet sheet = workbook.getSheetAt(0);
-    for (int i = 1; i < rowsCount; ++i) {
-      String authors = sheet.getRow(i).getCell(authorsColumn).getStringCellValue();
-      for (String name : authors.split(",\\s")) {
-        name = name.replace('\u00A0', ' ');
-        authorNames.add(name.trim());
-      }
-    }
-    return new LinkedList<>(authorNames);
-  }
-
-  public List<BookWithAuthors> getBooksWithAuthors() {
-    List<BookWithAuthors> booksWithAuthors = new ArrayList<>(rowsCount - 1);
-
-    Sheet sheet = workbook.getSheetAt(0);
-    for (int i = 1; i < rowsCount; ++i) {
-      Row row = sheet.getRow(i);
-      BigDecimal isbn = new BigDecimal(
-          row.getCell(isbnColumn).getStringCellValue().substring(8, 21)
+      book.setBookTitle(
+          row.getCell(titleColumn).getStringCellValue().replace('\u00A0', ' ').trim()
       );
-      List<String> authorNames = new LinkedList<>();
-      String authors = row.getCell(authorsColumn).getStringCellValue();
-      for (String name : authors.split(",\\s")) {
-        name = name.replace('\u00A0', ' ');
-        authorNames.add(name.trim());
+      String[] authors = row.getCell(authorsColumn).getStringCellValue()
+          .replace('\u00A0', ' ').split(",\\s*");
+      List<String> authorNames = new ArrayList<>(authors.length);
+      for (String authorName : authors) {
+        authorNames.add(authorName.trim());
       }
-      BookWithAuthors bookWithAuthors = new BookWithAuthors();
-      bookWithAuthors.setBookIsbn(isbn);
-      bookWithAuthors.setAuthorNames(authorNames);
-      booksWithAuthors.add(bookWithAuthors);
+      book.setAuthorNames(authorNames);
+      entries.add(book);
     }
-    return booksWithAuthors;
+    return entries;
   }
 
   public class BookWithAuthors {
 
     private BigDecimal bookIsbn;
+    private String bookTitle;
     private List<String> authorNames;
 
     public BigDecimal getBookIsbn() {
@@ -142,6 +111,14 @@ public class ExcelDataSource {
 
     public void setAuthorNames(List<String> authorNames) {
       this.authorNames = authorNames;
+    }
+
+    public String getBookTitle() {
+      return bookTitle;
+    }
+
+    public void setBookTitle(String bookTitle) {
+      this.bookTitle = bookTitle;
     }
   }
 }

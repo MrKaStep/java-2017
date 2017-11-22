@@ -17,13 +17,13 @@ public class DatabasePrinter {
   private static final Logger logger = LoggerFactory.getLogger("DBPrinter");
 
   private final EntityManager entityManager;
-  private final CriteriaBuilder builder;
+  private final CriteriaBuilder criteriaBuilder;
 
   private FileOutputStream outputStream;
 
-  public DatabasePrinter(DatabaseAccess databaseAccess, String path) {
-    this.entityManager = databaseAccess.entityManager;
-    this.builder = databaseAccess.entityManager.getCriteriaBuilder();
+  public DatabasePrinter(EntityManager entityManager, String path) {
+    this.entityManager = entityManager;
+    this.criteriaBuilder = entityManager.getCriteriaBuilder();
     this.outputStream = null;
     try {
       File outputFile = new File(path);
@@ -41,19 +41,19 @@ public class DatabasePrinter {
     XSSFWorkbook workbook = new XSSFWorkbook();
     logger.info("Adding books sheet ...");
     SheetAdder<Book> bookSheetAdder =
-        new SheetAdder<>(workbook, entityManager, builder, Book.class);
+        new SheetAdder<>(workbook, entityManager, criteriaBuilder, Book.class);
     bookSheetAdder.add();
     logger.info("Done!");
 
     logger.info("Adding authors sheet ...");
     SheetAdder<Author> authorSheetAdder =
-        new SheetAdder<>(workbook, entityManager, builder, Author.class);
+        new SheetAdder<>(workbook, entityManager, criteriaBuilder, Author.class);
     authorSheetAdder.add();
     logger.info("Done!");
 
     logger.info("Adding author-book relations sheet ...");
     SheetAdder<BookAuthorRelation> authorBookSheetAdder =
-        new SheetAdder<>(workbook, entityManager, builder, BookAuthorRelation.class);
+        new SheetAdder<>(workbook, entityManager, criteriaBuilder, BookAuthorRelation.class);
     authorBookSheetAdder.add();
     logger.info("Done!");
 

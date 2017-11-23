@@ -6,6 +6,7 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,8 +23,12 @@ import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SheetAdder<T> {
+
+  private static final Logger logger = LoggerFactory.getLogger("SheetAdder");
 
   private final Workbook workbook;
   private final EntityManager entityManager;
@@ -39,7 +44,6 @@ public class SheetAdder<T> {
     this.tableClass = tableClass;
   }
 
-
   private Row addHeaderRow(Sheet sheet) {
     Row headerRow = sheet.createRow(0);
 
@@ -53,8 +57,43 @@ public class SheetAdder<T> {
     return headerRow;
   }
 
+  private Map<String, Method> getColumnNamesWithGetters() throws IntrospectionException {
+    Map<String, Method> getters = new HashMap<>();
+    PropertyDescriptor[] propertyDescriptors =
+        Introspector.getBeanInfo(tableClass, Object.class).getPropertyDescriptors();
+    for (PropertyDescriptor pd : propertyDescriptors) {
+      try {
+        Field field = tableClass.getDeclaredField(pd.getName());
+        Method getter = pd.getReadMethod();
+        Column column = field.getAnnotation(Column.class);
+        if (column != null)
+          getters.put(column.name(), getter);
+
+      } catch (NoSuchFieldException e) {
+        e.printStackTrace();
+      }
+    }
+    return getters;
+  }
+
   public void add() {
-    Sheet sheet = workbook.createSheet(tableClass.getAnnotation(Table.class).name());
+    Map<String, Method> getters;
+    try {
+      getters = getColumnNamesWithGetters();
+    } catch (IntrospectionException e) {
+      logger.error("Unable to get fields of {}: {}", tableClass.toString(), e.getMessage());
+      return;
+    }
+
+    Table table = tableClass.getAnnotation(Table.class);
+    if (table == null) {
+      logger.error("Provided class is not a JPA table");
+      return;
+    }
+
+    logger.info("Adding {} sheet...", table.name());
+
+    Sheet sheet = workbook.createSheet(table.name());
 
     CriteriaQuery<T> criteriaQuery = builder.createQuery(tableClass);
     Root<T> root = criteriaQuery.from(tableClass);
@@ -63,47 +102,38 @@ public class SheetAdder<T> {
 
     Row headerRow = addHeaderRow(sheet);
 
-    try {
-      Map<Field, Method> getters = new HashMap<>();
-      PropertyDescriptor[] propertyDescriptors =
-          Introspector.getBeanInfo(tableClass, Object.class).getPropertyDescriptors();
-      for (PropertyDescriptor pd : propertyDescriptors) {
-        Field field = tableClass.getDeclaredField(pd.getName());
-        Method getter = pd.getReadMethod();
-        getters.put(field, getter);
-      }
+    List<Map.Entry<String, Method>> getterList = new ArrayList<>(getters.entrySet());
 
-      Field[] fields = tableClass.getDeclaredFields();
-      for (int i = 0; i < fields.length; ++i) {
-        headerRow.createCell(i).setCellValue(fields[i].getAnnotation(Column.class).name());
-      }
-      int lastRow = 0;
-      for (T entry : entries) {
-        Row row = sheet.createRow(++lastRow);
-        for (int i = 0; i < fields.length; ++i) {
-          Cell cell = row.createCell(i);
-          Method getter = getters.get(fields[i]);
-          Object o = getter.invoke(entry);
-          if (o != null) {
-            try {
-              cell.setCellValue(Long.class.cast(o));
-            } catch (ClassCastException e) {
-              cell.setCellValue(o.toString());
-            }
-          } else {
-            cell.setCellValue("");
+    for (int i = 0; i < getterList.size(); ++i) {
+      headerRow.createCell(i).setCellValue(getterList.get(i).getKey());
+    }
+
+    int lastRow = 0;
+    for (T entry : entries) {
+      Row row = sheet.createRow(++lastRow);
+      for (int i = 0; i < getterList.size(); ++i) {
+        Cell cell = row.createCell(i);
+        Method getter = getterList.get(i).getValue();
+        Object o = null;
+        try {
+          o = getter.invoke(entry);
+        } catch (IllegalAccessException e) {
+          logger.warn("Can't access getter of field {}, skipping", getterList.get(i).getKey());
+        } catch (InvocationTargetException e) {
+          logger.warn("Getter invocation caused an exception: {}", e.getMessage());
+        }
+        if (o != null) {
+          try {
+            cell.setCellValue(Long.class.cast(o));
+          } catch (ClassCastException e) {
+            cell.setCellValue(o.toString());
           }
-//          row.createCell(i).setCellValue(getters.get(fields[i].getName()).invoke(entry).toString());
+        } else {
+          cell.setCellValue("");
         }
       }
-    } catch (IntrospectionException e) {
-      e.printStackTrace();
-    } catch (NoSuchFieldException e) {
-      e.printStackTrace();
-    } catch (IllegalAccessException e) {
-      e.printStackTrace();
-    } catch (InvocationTargetException e) {
-      e.printStackTrace();
     }
+
+    logger.info("Sheet {} successfully added!", table.name());
   }
 }

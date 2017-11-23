@@ -39,23 +39,19 @@ public class DatabasePrinter {
 
   void printDatabaseContents() throws IOException {
     XSSFWorkbook workbook = new XSSFWorkbook();
-    logger.info("Adding books sheet ...");
+    logger.info("Building resulting book ...");
     SheetAdder<Book> bookSheetAdder =
         new SheetAdder<>(workbook, entityManager, criteriaBuilder, Book.class);
     bookSheetAdder.add();
-    logger.info("Done!");
 
-    logger.info("Adding authors sheet ...");
     SheetAdder<Author> authorSheetAdder =
         new SheetAdder<>(workbook, entityManager, criteriaBuilder, Author.class);
     authorSheetAdder.add();
-    logger.info("Done!");
 
-    logger.info("Adding author-book relations sheet ...");
     SheetAdder<BookAuthorRelation> authorBookSheetAdder =
         new SheetAdder<>(workbook, entityManager, criteriaBuilder, BookAuthorRelation.class);
     authorBookSheetAdder.add();
-    logger.info("Done!");
+    logger.info("Result built!");
 
     logger.info("Writing result ...");
     workbook.write(outputStream);

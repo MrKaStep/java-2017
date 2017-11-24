@@ -3,9 +3,7 @@ package ru.mipt.java2017.hw3.models;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
@@ -13,7 +11,7 @@ import javax.persistence.Table;
 public class BookAuthorRelation {
 
   @Id
-  @GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY )
+  @GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
   @Column(name = "ID")
   private Long id;
 

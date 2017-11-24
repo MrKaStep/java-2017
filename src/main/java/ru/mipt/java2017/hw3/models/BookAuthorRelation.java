@@ -13,12 +13,7 @@ import javax.persistence.Table;
 public class BookAuthorRelation {
 
   @Id
-
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "books_authors_id_seq")
-  @SequenceGenerator(
-      name = "books_authors_id_seq",
-      sequenceName = "books_authors_id_seq",
-      allocationSize = 1)
+  @GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY )
   @Column(name = "ID")
   private Long id;
 

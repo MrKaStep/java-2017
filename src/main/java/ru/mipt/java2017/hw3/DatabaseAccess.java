@@ -25,12 +25,16 @@ public class DatabaseAccess {
     try {
       driverClassName = DriverManager.getDriver(url).getClass().getCanonicalName();
     } catch (SQLException e) {
-      logger.error("Cannot get driver for specified URL");
+      logger.error("Cannot get driver for specified URL {}", url);
       e.printStackTrace();
       System.exit(1);
     }
 
     Properties properties = new Properties();
+
+    if (url.contains("sqlite")) {
+      properties.setProperty("hibernate.dialect", "org.hibernate.dialect.SQLiteDialect");
+    }
 
     properties.setProperty("hibernate.connection.driver_class", driverClassName);
     properties.setProperty("hibernate.connection.url", url);

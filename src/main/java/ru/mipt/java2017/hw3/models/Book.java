@@ -14,11 +14,7 @@ import javax.persistence.Table;
 public class Book {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "books_id_seq")
-  @SequenceGenerator(
-      name = "books_id_seq",
-      sequenceName = "books_id_seq",
-      allocationSize = 1)
+  @GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY )
   @Column(name = "ID")
   private Long id;
 

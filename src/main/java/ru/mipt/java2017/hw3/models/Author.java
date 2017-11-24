@@ -13,11 +13,7 @@ import javax.persistence.Table;
 public class Author {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "authors_id_seq")
-  @SequenceGenerator(
-      name = "authors_id_seq",
-      sequenceName = "authors_id_seq",
-      allocationSize = 1)
+  @GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY )
   @Column(name = "ID")
   private Long id;
 

@@ -65,7 +65,7 @@ public class SheetAdder<T> {
       try {
         Field field = tableClass.getDeclaredField(pd.getName());
         Method getter = pd.getReadMethod();
-        Column column = field.getAnnotation(Column.class);
+        Column column = field.getDeclaredAnnotation(Column.class);
         if (column != null)
           getters.put(column.name(), getter);
 
@@ -77,7 +77,7 @@ public class SheetAdder<T> {
   }
 
   public void add() {
-    Table table = tableClass.getAnnotation(Table.class);
+    Table table = tableClass.getDeclaredAnnotation(Table.class);
     if (table == null) {
       logger.error("Provided class is not a JPA table");
       return;

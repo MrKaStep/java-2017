@@ -40,15 +40,11 @@ public class AdvancedDatabaseUpdater extends DatabaseUpdater {
       Book book = new Book();
       book.setIsbn(bookWithAuthors.getBookIsbn());
       book.setTitle(bookWithAuthors.getBookTitle());
-      try {
-        List<String> authors = bookWithAuthors.getAuthorNames();
-        String coverLink = imageSearcher.searchImage(
-            book.getTitle() + " by " + authors.get(0) + " cover"
-        );
-        book.setCoverLink(coverLink);
-      } catch (IOException e) {
-        logger.warn("Cannot get cover: {}", e.getMessage());
-      }
+      List<String> authors = bookWithAuthors.getAuthorNames();
+      String coverLink = imageSearcher.searchImage(
+          book.getTitle() + " by " + authors.get(0) + " cover"
+      );
+      book.setCoverLink(coverLink);
       books.add(book);
     });
 

@@ -35,12 +35,14 @@ public class GoogleImageSearcher {
 
   }
 
-  public String searchImage(String query) throws IOException {
+  public String searchImage(String query)  {
     logger.debug("Attempting search on query \"{}\"", query);
     try {
       Thread.sleep(200);
     } catch (InterruptedException e) {
+      logger.warn("Search interrupted!");
       e.printStackTrace();
+      return null;
     }
     URIBuilder uriBuilder = null;
     HttpGet request = null;
@@ -60,7 +62,13 @@ public class GoogleImageSearcher {
       return null;
     }
     logger.debug("Search url: {}", request.getURI().toASCIIString());
-    HttpResponse response = httpClient.execute(request);
+    HttpResponse response = null;
+    try {
+      response = httpClient.execute(request);
+    } catch (IOException e) {
+      logger.warn("Request execution failed: {}", e.getMessage());
+      return null;
+    }
     int code = response.getStatusLine().getStatusCode();
     int codeClass = code / 100;
     if (codeClass == 4 || codeClass == 5) {
@@ -72,8 +80,13 @@ public class GoogleImageSearcher {
       return null;
     }
     logger.debug("Response recieved!");
-    InputStream responseContents = response.getEntity().getContent();
-    String jsonString = IOUtils.toString(responseContents, Charset.forName("UTF-8"));
+    String jsonString = null;
+    try {
+      InputStream responseContents = response.getEntity().getContent();
+      jsonString = IOUtils.toString(responseContents, Charset.forName("UTF-8"));
+    } catch (IOException e) {
+      logger.warn("Responce parsing failed: {}", e.getMessage());
+    }
     EntityUtils.consumeQuietly(response.getEntity());
     JSONArray items = null;
     try {

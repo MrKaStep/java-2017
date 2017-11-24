@@ -66,8 +66,9 @@ public class SheetAdder<T> {
         Field field = tableClass.getDeclaredField(pd.getName());
         Method getter = pd.getReadMethod();
         Column column = field.getDeclaredAnnotation(Column.class);
-        if (column != null)
+        if (column != null) {
           getters.put(column.name(), getter);
+        }
 
       } catch (NoSuchFieldException e) {
         e.printStackTrace();

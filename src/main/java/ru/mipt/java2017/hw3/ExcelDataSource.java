@@ -17,18 +17,15 @@ public class ExcelDataSource {
   private static final Logger logger = LoggerFactory.getLogger("excel");
   private final Workbook workbook;
 
-  private final int titleColumn;
-  private final int authorsColumn;
-  private final int isbnColumn;
-  private final int rowsCount;
+  private int titleColumn;
+  private int authorsColumn;
+  private int isbnColumn;
+  private int rowsCount;
 
   private ExcelDataSource(InputStream inputStream) throws IOException {
     workbook = new XSSFWorkbook(inputStream);
     Sheet sheet = workbook.getSheetAt(0);
     Row row = sheet.getRow(0);
-    int titleColumn = -1;
-    int authorsColumn = -1;
-    int isbnColumn = -1;
     for (int i = 0; i < 3; ++i) {
       String columnHead = row.getCell(i).getStringCellValue();
       if (columnHead.equals("Title")) {
@@ -45,7 +42,7 @@ public class ExcelDataSource {
     this.isbnColumn = isbnColumn;
 
     int maxRowCount = sheet.getPhysicalNumberOfRows();
-    int rowsCount = 0;
+    rowsCount = 0;
     for (int i = 0; i < maxRowCount; ++i) {
       String contents = sheet.getRow(i).getCell(titleColumn).getStringCellValue();
       if (contents != null && contents.length() > 0) {
@@ -54,7 +51,6 @@ public class ExcelDataSource {
         break;
       }
     }
-    this.rowsCount = rowsCount;
   }
 
   public static ExcelDataSource createExcelDataSource(InputStream inputStream) {

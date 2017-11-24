@@ -77,17 +77,17 @@ public class SheetAdder<T> {
   }
 
   public void add() {
+    Table table = tableClass.getAnnotation(Table.class);
+    if (table == null) {
+      logger.error("Provided class is not a JPA table");
+      return;
+    }
+
     Map<String, Method> getters;
     try {
       getters = getColumnNamesWithGetters();
     } catch (IntrospectionException e) {
       logger.error("Unable to get fields of {}: {}", tableClass.toString(), e.getMessage());
-      return;
-    }
-
-    Table table = tableClass.getAnnotation(Table.class);
-    if (table == null) {
-      logger.error("Provided class is not a JPA table");
       return;
     }
 

@@ -33,20 +33,9 @@ public class DatabaseAccess {
       System.exit(1);
     }
 
-    String dialectName = null;
-    try {
-      Connection connection = DriverManager.getConnection(url);
-      dialectName = new StandardDialectResolver().resolveDialect(
-          new DatabaseMetaDataDialectResolutionInfoAdapter(connection.getMetaData())
-      ).toString();
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-
     Properties properties = new Properties();
 
     properties.setProperty("hibernate.connection.driver_class", driverClassName);
-    properties.setProperty("hibernate.connection.dialect", dialectName);
     properties.setProperty("hibernate.connection.url", url);
 
     entityManagerFactory =

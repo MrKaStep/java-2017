@@ -72,7 +72,7 @@ public class GoogleImageSearcher {
     int code = response.getStatusLine().getStatusCode();
     int codeClass = code / 100;
     if (codeClass == 4 || codeClass == 5) {
-      logger.error("Error {}: {}",
+      logger.warn("Error {}: {}",
           response.getStatusLine().getStatusCode(),
           response.getStatusLine().getReasonPhrase(),
           request.getURI().toASCIIString()

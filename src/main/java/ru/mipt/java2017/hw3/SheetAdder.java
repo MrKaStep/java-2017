@@ -3,6 +3,7 @@ package ru.mipt.java2017.hw3;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.EntityManager;
+import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -68,8 +70,12 @@ public class SheetAdder<T> {
         Column column = field.getDeclaredAnnotation(Column.class);
         if (column != null) {
           getters.put(column.name(), getter);
+        } else {
+          JoinColumn joinColumn = field.getDeclaredAnnotation(JoinColumn.class);
+          if (joinColumn != null) {
+            getters.put(joinColumn.name(), getter);
+          }
         }
-
       } catch (NoSuchFieldException e) {
         e.printStackTrace();
       }
@@ -124,6 +130,19 @@ public class SheetAdder<T> {
           logger.warn("Getter invocation caused an exception: {}", e.getMessage());
         }
         if (o != null) {
+          try {
+            Table t = o.getClass().getDeclaredAnnotation(Table.class);
+            if (t != null) {
+              Method getId = o.getClass().getMethod("getId");
+              o = getId.invoke(o);
+            }
+          } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+          } catch (IllegalAccessException e) {
+            e.printStackTrace();
+          } catch (InvocationTargetException e) {
+            e.printStackTrace();
+          }
           try {
             cell.setCellValue(Long.class.cast(o));
           } catch (ClassCastException e) {

@@ -14,6 +14,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.mipt.java2017.hw3.ExcelDataSource.BookWithAuthors;
+import ru.mipt.java2017.hw3.models.Author;
 import ru.mipt.java2017.hw3.models.Book;
 
 public class AdvancedDatabaseUpdater extends DatabaseUpdater {
@@ -47,9 +48,9 @@ public class AdvancedDatabaseUpdater extends DatabaseUpdater {
       books.add(book);
     });
 
-    Map<String, Long> authorIdByName = addAuthorsAndGetIds(new ArrayList<>(authorNames));
-    Map<BigDecimal, Long> bookIdByIsbn = addBooksAndGetIds(books);
-    addBookAuthorRelations(authorIdByName, bookIdByIsbn, booksWithAuthors);
+    Map<String, Author> authorByName = addAuthors(new ArrayList<>(authorNames));
+    Map<BigDecimal, Book> bookByIsbn = addBooks(books);
+    addBookAuthorRelations(authorByName, bookByIsbn, booksWithAuthors);
   }
 
   public static void main(String[] args) {

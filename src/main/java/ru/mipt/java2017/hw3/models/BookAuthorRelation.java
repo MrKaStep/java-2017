@@ -4,6 +4,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -15,11 +17,13 @@ public class BookAuthorRelation {
   @Column(name = "ID")
   private Long id;
 
-  @Column(name = "books_id")
-  private Long bookId;
+  @ManyToOne
+  @JoinColumn(name = "books_id")
+  private Book book;
 
-  @Column(name = "authors_id")
-  private Long authorId;
+  @ManyToOne
+  @JoinColumn(name = "authors_id")
+  private Author author;
 
   @Column(name = "num")
   private Long order;
@@ -28,27 +32,27 @@ public class BookAuthorRelation {
     return id;
   }
 
-  public Long getBookId() {
-    return bookId;
-  }
-
-  public void setBookId(Long bookId) {
-    this.bookId = bookId;
-  }
-
-  public Long getAuthorId() {
-    return authorId;
-  }
-
-  public void setAuthorId(Long authorId) {
-    this.authorId = authorId;
-  }
-
   public Long getOrder() {
     return order;
   }
 
   public void setOrder(Long order) {
     this.order = order;
+  }
+
+  public Author getAuthor() {
+    return author;
+  }
+
+  public void setAuthor(Author author) {
+    this.author = author;
+  }
+
+  public Book getBook() {
+    return book;
+  }
+
+  public void setBook(Book book) {
+    this.book = book;
   }
 }

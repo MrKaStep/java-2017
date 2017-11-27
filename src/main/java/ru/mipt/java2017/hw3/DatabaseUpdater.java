@@ -44,25 +44,25 @@ public class DatabaseUpdater {
     entityManager.persist(relation);
   }
 
-  protected Map<String, Long> addAuthorsAndGetIds(List<String> authorNames) {
-    Map<String, Long> idByName = new HashMap<>();
+  protected Map<String, Author> addAuthors(List<String> authorNames) {
+    Map<String, Author> idByName = new HashMap<>();
     List<Author> authors = new ArrayList<>(authorNames.size());
     logger.info("Adding authors ...");
     entityManager.getTransaction().begin();
     authorNames.forEach(authorName -> {
       Author author = new Author();
       author.setName(authorName);
-      authors.add(author);
       addAuthor(author);
+      authors.add(author);
     });
     entityManager.getTransaction().commit();
     logger.info("Done!");
-    authors.forEach(author -> idByName.put(author.getName(), author.getId()));
+    authors.forEach(author -> idByName.put(author.getName(), author));
     return idByName;
   }
 
-  protected Map<BigDecimal, Long> addBooksAndGetIds(List<Book> books) {
-    Map<BigDecimal, Long> idByIsbn = new HashMap<>();
+  protected Map<BigDecimal, Book> addBooks(List<Book> books) {
+    Map<BigDecimal, Book> idByIsbn = new HashMap<>();
     logger.info("Adding books ...");
     entityManager.getTransaction().begin();
 //    books.forEach(this::addBook);
@@ -76,10 +76,10 @@ public class DatabaseUpdater {
         foundBook.setTitle(book.getTitle());
         foundBook.setCoverLink(book.getCoverLink());
         entityManager.merge(foundBook);
-        idByIsbn.put(foundBook.getIsbn(), foundBook.getId());
+        idByIsbn.put(foundBook.getIsbn(), foundBook);
       } catch (NoResultException e) {
         entityManager.persist(book);
-        idByIsbn.put(book.getIsbn(), book.getId());
+        idByIsbn.put(book.getIsbn(), book);
       }
     });
     entityManager.getTransaction().commit();
@@ -88,8 +88,8 @@ public class DatabaseUpdater {
   }
 
   protected void addBookAuthorRelations(
-      Map<String, Long> authorIdByName,
-      Map<BigDecimal, Long> bookIdByIsbn,
+      Map<String, Author> authorByName,
+      Map<BigDecimal, Book> bookByIsbn,
       List<BookWithAuthors> booksWithAuthors) {
     logger.info("Adding author-book entries ...");
     booksWithAuthors.forEach(bookWithAuthors -> {
@@ -102,8 +102,8 @@ public class DatabaseUpdater {
         ++order;
 
         BookAuthorRelation relation = new BookAuthorRelation();
-        relation.setBookId(bookIdByIsbn.get(bookWithAuthors.getBookIsbn()));
-        relation.setAuthorId(authorIdByName.get(name));
+        relation.setBook(bookByIsbn.get(bookWithAuthors.getBookIsbn()));
+        relation.setAuthor(authorByName.get(name));
         relation.setOrder(order);
         addBookAuthorRelation(relation);
       }
@@ -126,8 +126,8 @@ public class DatabaseUpdater {
       books.add(book);
     });
 
-    Map<String, Long> authorIdByName = addAuthorsAndGetIds(new ArrayList<>(authorNames));
-    Map<BigDecimal, Long> bookIdByIsbn = addBooksAndGetIds(books);
+    Map<String, Author> authorIdByName = addAuthors(new ArrayList<>(authorNames));
+    Map<BigDecimal, Book> bookIdByIsbn = addBooks(books);
     addBookAuthorRelations(authorIdByName, bookIdByIsbn, booksWithAuthors);
   }
 

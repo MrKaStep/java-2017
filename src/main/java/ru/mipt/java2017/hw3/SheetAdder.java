@@ -153,6 +153,10 @@ public class SheetAdder<T> {
       }
     }
 
+    for (int i = 0; i < getters.size(); ++i) {
+      sheet.autoSizeColumn(i);
+    }
+
     logger.info("Sheet {} successfully added!", table.name());
   }
 }

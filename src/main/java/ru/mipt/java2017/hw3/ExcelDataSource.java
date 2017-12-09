@@ -37,10 +37,6 @@ public class ExcelDataSource {
       }
     }
 
-    this.titleColumn = titleColumn;
-    this.authorsColumn = authorsColumn;
-    this.isbnColumn = isbnColumn;
-
     int maxRowCount = sheet.getPhysicalNumberOfRows();
     rowsCount = 0;
     for (int i = 0; i < maxRowCount; ++i) {

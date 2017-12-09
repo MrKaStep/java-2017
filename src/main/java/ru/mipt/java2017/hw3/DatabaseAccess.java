@@ -32,7 +32,7 @@ public class DatabaseAccess {
 
     Properties properties = new Properties();
 
-    if (url.contains("sqlite")) {
+    if (url.substring(0, 11).equals("jdbc:sqlite")) {
       properties.setProperty("hibernate.dialect", "org.hibernate.dialect.SQLiteDialect");
     }
 
@@ -45,7 +45,7 @@ public class DatabaseAccess {
 
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       System.err.println("*** shutting down DatabaseAccess since JVM is shutting down");
-      this.close();
+      DatabaseAccess.this.close();
       System.err.println("*** DatabaseAccess shut down");
     }));
   }

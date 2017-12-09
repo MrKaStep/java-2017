@@ -9,6 +9,7 @@ import java.nio.charset.Charset;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.HttpClients;
@@ -23,7 +24,15 @@ public class GoogleImageSearcher {
 
   private static final Logger logger = LoggerFactory.getLogger("GoogleSearcher");
 
+  private static final int CONNECTION_TIMEOUT_MS = 3000;
+
   private HttpClient httpClient = HttpClients.createSystem();
+
+  RequestConfig requestConfig = RequestConfig.custom()
+      .setConnectionRequestTimeout(CONNECTION_TIMEOUT_MS)
+      .setConnectTimeout(CONNECTION_TIMEOUT_MS)
+      .setSocketTimeout(CONNECTION_TIMEOUT_MS)
+      .build();
 
   private static final String GOOGLE_API_URL = "https://www.googleapis.com/customsearch/v1";
   private final String apiKey;
@@ -57,6 +66,7 @@ public class GoogleImageSearcher {
       uriBuilder.addParameter("fileType", "jpg");
       uriBuilder.addParameter("q", query);
       request = new HttpGet(uriBuilder.build());
+      request.setConfig(requestConfig);
     } catch (URISyntaxException e) {
       e.printStackTrace();
       return null;

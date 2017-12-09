@@ -26,7 +26,7 @@ public class GoogleImageSearcher {
 
   private static final int CONNECTION_TIMEOUT_MS = 3000;
 
-  private static final RequestConfig requestConfig = RequestConfig.custom()
+  private static final RequestConfig REQUEST_CONFIG = RequestConfig.custom()
       .setConnectionRequestTimeout(CONNECTION_TIMEOUT_MS)
       .setConnectTimeout(CONNECTION_TIMEOUT_MS)
       .setSocketTimeout(CONNECTION_TIMEOUT_MS)
@@ -66,7 +66,7 @@ public class GoogleImageSearcher {
       uriBuilder.addParameter("fileType", "jpg");
       uriBuilder.addParameter("q", query);
       request = new HttpGet(uriBuilder.build());
-      request.setConfig(requestConfig);
+      request.setConfig(REQUEST_CONFIG);
     } catch (URISyntaxException e) {
       e.printStackTrace();
       return null;

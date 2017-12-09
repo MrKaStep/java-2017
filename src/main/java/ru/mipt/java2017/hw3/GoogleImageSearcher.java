@@ -26,13 +26,13 @@ public class GoogleImageSearcher {
 
   private static final int CONNECTION_TIMEOUT_MS = 3000;
 
-  private HttpClient httpClient = HttpClients.createSystem();
-
-  RequestConfig requestConfig = RequestConfig.custom()
+  private static final RequestConfig requestConfig = RequestConfig.custom()
       .setConnectionRequestTimeout(CONNECTION_TIMEOUT_MS)
       .setConnectTimeout(CONNECTION_TIMEOUT_MS)
       .setSocketTimeout(CONNECTION_TIMEOUT_MS)
       .build();
+
+  private HttpClient httpClient = HttpClients.createSystem();
 
   private static final String GOOGLE_API_URL = "https://www.googleapis.com/customsearch/v1";
   private final String apiKey;

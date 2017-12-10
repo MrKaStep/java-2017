@@ -36,14 +36,6 @@ public class DatabaseUpdater {
     criteriaBuilder = this.entityManager.getCriteriaBuilder();
   }
 
-  protected void addAuthor(Author author) {
-    entityManager.persist(author);
-  }
-
-  protected void addBookAuthorRelation(BookAuthorRelation relation) {
-    entityManager.persist(relation);
-  }
-
   protected Map<String, Author> addAuthors(List<String> authorNames) {
     Map<String, Author> idByName = new HashMap<>();
     List<Author> authors = new ArrayList<>(authorNames.size());
@@ -52,7 +44,7 @@ public class DatabaseUpdater {
     authorNames.forEach(authorName -> {
       Author author = new Author();
       author.setName(authorName);
-      addAuthor(author);
+      entityManager.persist(author);
       authors.add(author);
     });
     entityManager.getTransaction().commit();
@@ -105,7 +97,7 @@ public class DatabaseUpdater {
         relation.setBook(bookByIsbn.get(bookWithAuthors.getBookIsbn()));
         relation.setAuthor(authorByName.get(name));
         relation.setOrder(order);
-        addBookAuthorRelation(relation);
+        entityManager.persist(relation);
       }
 
       entityManager.getTransaction().commit();
@@ -142,6 +134,10 @@ public class DatabaseUpdater {
     }
   }
 
+  public void close() {
+    entityManager.close();
+  }
+
   public static void main(String[] args) {
     DatabaseAccess databaseAccess = new DatabaseAccess(args[0]);
     DatabaseUpdater updater = new DatabaseUpdater(databaseAccess);
@@ -154,6 +150,8 @@ public class DatabaseUpdater {
     }
     updater.updateDatabase(excelDataSource.getEntries());
     updater.printDatabase(args[2]);
+    updater.close();
     databaseAccess.close();
+    System.exit(0);
   }
 }

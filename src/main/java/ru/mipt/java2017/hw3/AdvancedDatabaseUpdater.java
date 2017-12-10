@@ -81,8 +81,8 @@ public class AdvancedDatabaseUpdater extends DatabaseUpdater {
 
     updater.updateDatabase(excelDataSource.getEntries());
     updater.printDatabase(args[2]);
+    updater.close();
     databaseAccess.close();
+    System.exit(0);
   }
-
-
 }

@@ -49,13 +49,8 @@ public class ExcelDataSource {
     }
   }
 
-  public static ExcelDataSource createExcelDataSource(InputStream inputStream) {
-    try {
-      return new ExcelDataSource(inputStream);
-    } catch (IOException e) {
-      logger.error("IOError: {}", e.getMessage());
-      return null;
-    }
+  public static ExcelDataSource createExcelDataSource(InputStream inputStream) throws IOException {
+    return new ExcelDataSource(inputStream);
   }
 
   public List<BookWithAuthors> getEntries() {

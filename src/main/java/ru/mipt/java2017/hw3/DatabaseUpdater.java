@@ -2,7 +2,6 @@ package ru.mipt.java2017.hw3;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -149,8 +148,9 @@ public class DatabaseUpdater {
     try {
       excelDataSource = ExcelDataSource.createExcelDataSource(
           new FileInputStream(new File(args[1])));
-    } catch (FileNotFoundException e) {
+    } catch (IOException e) {
       e.printStackTrace();
+      System.exit(1);
     }
     updater.updateDatabase(excelDataSource.getEntries());
     updater.printDatabase(args[2]);

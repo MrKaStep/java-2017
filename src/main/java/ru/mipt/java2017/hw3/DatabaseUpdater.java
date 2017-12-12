@@ -34,6 +34,11 @@ public class DatabaseUpdater {
   DatabaseUpdater(DatabaseAccess databaseAccess) {
     entityManager = databaseAccess.entityManager;
     criteriaBuilder = this.entityManager.getCriteriaBuilder();
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      System.err.println("*** closing entityManager since JVM is shutting down");
+      entityManager.close();
+      System.err.println("*** entityManager closed");
+    }));
   }
 
   protected Map<String, Author> addAuthors(List<String> authorNames) {
@@ -67,7 +72,6 @@ public class DatabaseUpdater {
         Book foundBook = entityManager.createQuery(query).getSingleResult();
         foundBook.setTitle(book.getTitle());
         foundBook.setCoverLink(book.getCoverLink());
-        entityManager.merge(foundBook);
         idByIsbn.put(foundBook.getIsbn(), foundBook);
       } catch (NoResultException e) {
         entityManager.persist(book);
@@ -150,8 +154,6 @@ public class DatabaseUpdater {
     }
     updater.updateDatabase(excelDataSource.getEntries());
     updater.printDatabase(args[2]);
-    updater.close();
-    databaseAccess.close();
     System.exit(0);
   }
 }

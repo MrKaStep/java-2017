@@ -24,7 +24,7 @@ public class GoogleImageSearcher {
 
   private static final Logger logger = LoggerFactory.getLogger("GoogleSearcher");
 
-  private static final int CONNECTION_TIMEOUT_MS = 3000;
+  private static final int CONNECTION_TIMEOUT_MS = 10000;
 
   private static final RequestConfig REQUEST_CONFIG = RequestConfig.custom()
       .setConnectionRequestTimeout(CONNECTION_TIMEOUT_MS)

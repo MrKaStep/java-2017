@@ -53,8 +53,8 @@ public class GoogleImageSearcher {
       e.printStackTrace();
       return null;
     }
-    URIBuilder uriBuilder = null;
-    HttpGet request = null;
+    URIBuilder uriBuilder;
+    HttpGet request;
     try {
       uriBuilder = new URIBuilder(GOOGLE_API_URL);
       uriBuilder.addParameter("key", apiKey);
@@ -72,7 +72,7 @@ public class GoogleImageSearcher {
       return null;
     }
     logger.debug("Search url: {}", request.getURI().toASCIIString());
-    HttpResponse response = null;
+    HttpResponse response;
     try {
       response = httpClient.execute(request);
     } catch (IOException e) {
@@ -84,21 +84,21 @@ public class GoogleImageSearcher {
     if (codeClass == 4 || codeClass == 5) {
       logger.warn("Error {}: {}",
           response.getStatusLine().getStatusCode(),
-          response.getStatusLine().getReasonPhrase(),
-          request.getURI().toASCIIString()
+          response.getStatusLine().getReasonPhrase()
       );
       return null;
     }
     logger.debug("Response recieved!");
-    String jsonString = null;
+    String jsonString;
     try {
       InputStream responseContents = response.getEntity().getContent();
       jsonString = IOUtils.toString(responseContents, Charset.forName("UTF-8"));
     } catch (IOException e) {
       logger.warn("Responce parsing failed: {}", e.getMessage());
+      return null;
     }
     EntityUtils.consumeQuietly(response.getEntity());
-    JSONArray items = null;
+    JSONArray items;
     try {
       JSONObject jsonObject = new JSONObject(jsonString);
       items = jsonObject.getJSONArray("items");
@@ -109,12 +109,8 @@ public class GoogleImageSearcher {
     for (Object object : items) {
       JSONObject item = (JSONObject) object;
       String link = item.getString("link");
-      try {
-        logger.debug("Search successful!");
-        return new URL(link).toString();
-      } catch (MalformedURLException e) {
-        e.printStackTrace();
-      }
+      logger.debug("Search successful!");
+      return link;
     }
     logger.debug("Search failed!");
     return null;

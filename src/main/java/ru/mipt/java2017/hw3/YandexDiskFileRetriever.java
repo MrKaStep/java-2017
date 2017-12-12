@@ -32,7 +32,7 @@ public class YandexDiskFileRetriever {
   }
 
   public InputStream getFile(String path) throws IOException {
-    HttpGet request = null;
+    HttpGet request;
     try {
       URIBuilder builder = new URIBuilder(DISK_URL);
       builder.setPath("/" + path);
